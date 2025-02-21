@@ -29,4 +29,28 @@ RSpec.describe "Api::V1::SleepRecords", type: :request do
       end
     end
   end
+
+  describe "PATCH /api/v1/users/:user_id/sleep_records/:id/clock_out" do
+    context "with an active sleep record" do
+      let!(:sleep_record) { create(:sleep_record, user: user) }
+
+      it "clocks out the sleep record" do
+        patch "/api/v1/users/#{user.id}/sleep_records/#{sleep_record.id}/clock_out"
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to have_key("sleep_record")
+        expect(JSON.parse(response.body)["sleep_record"]["status"]).to eq("completed")
+        expect(JSON.parse(response.body)["sleep_record"]["clock_out_at"]).not_to be_nil
+      end
+    end
+
+    context "without an active sleep record" do
+      it "returns an error" do
+        patch "/api/v1/users/#{user.id}/sleep_records/1/clock_out"
+
+        expect(response).to have_http_status(:not_found)
+        expect(JSON.parse(response.body)["error"]).to include("No active sleep record found")
+      end
+    end
+  end
 end

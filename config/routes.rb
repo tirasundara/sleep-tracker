@@ -10,6 +10,9 @@ Rails.application.routes.draw do
           collection do
             post :clock_in # clock in a sleep record
           end
+          member do
+            patch :clock_out # clock out a sleep record
+          end
         end
       end
     end
