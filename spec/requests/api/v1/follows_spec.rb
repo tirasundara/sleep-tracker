@@ -34,4 +34,25 @@ RSpec.describe "Api::V1::Followings", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
     end
   end
+
+  describe "DELETE /api/v1/users/:user_id/unfollow" do
+    before { user.follow(other_user) }
+
+    it "unfollows a user" do
+      expect {
+        delete "/api/v1/users/#{user.id}/unfollow", params: { followed_id: other_user.id }
+      }.to change(Following, :count).by(-1)
+
+      expect(response).to have_http_status(:ok)
+      expect(user.following?(other_user)).to be false
+    end
+
+    it "returns success even if not following the user" do
+      another_user = create(:user)
+
+      delete "/api/v1/users/#{user.id}/unfollow", params: { followed_id: another_user.id }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

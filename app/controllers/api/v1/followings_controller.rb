@@ -16,6 +16,18 @@ module Api
         end
       end
 
+      # DELETE /api/v1/users/:user_id/unfollow
+      def unfollow
+        followed = User.find(params[:followed_id])
+
+        if @user.unfollow(followed)
+          render json: { message: "Successfully unfollowed user" }, status: :ok
+        else
+          render json: { error: "Unable to unfollow user" }, status: :unprocessable_entity
+        end
+      end
+
+
       private
 
       def set_user
