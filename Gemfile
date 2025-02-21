@@ -57,6 +57,7 @@ group :development, :test do
   gem "shoulda-matchers", "~> 6.0"
   gem "timecop", "~> 0.9"
   gem "rspec-sidekiq", "~> 5.0"
+  gem "simplecov", "~> 0.22"
 
   # dotenv
   gem "dotenv-rails"
