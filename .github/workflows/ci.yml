@@ -79,20 +79,6 @@ jobs:
       - name: Install dependencies
         run: bundle install
 
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          echo "Waiting for PostgreSQL..."
-          for i in {1..30}; do
-            pg_isready -h $DB_HOST -U $DB_USER && echo "PostgreSQL is ready!" && break
-            echo "PostgreSQL not ready yet. Retrying in 2s..."
-            sleep 2
-          done
-
-      - name: Debug PostgreSQL Connection
-        run: |
-          echo "Testing PostgreSQL connection..."
-          PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "SELECT 1;"
-
       - name: Set up database
         run: |
           bin/rails db:create db:schema:load --trace
