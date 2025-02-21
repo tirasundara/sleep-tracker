@@ -37,7 +37,6 @@ RSpec.describe SleepRecordService do
     end
 
     it 'returns sleep records from followed users from the previous week' do
-
       result = SleepRecordService.following_sleep_records_from_previous_week(user)
 
       expect(result.count).to eq(3)
