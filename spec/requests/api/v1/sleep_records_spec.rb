@@ -53,4 +53,34 @@ RSpec.describe "Api::V1::SleepRecords", type: :request do
       end
     end
   end
+
+  describe "GET /api/v1/users/:user_id/sleep_records" do
+    before do
+      create(:sleep_record, user: user, clock_in_at: 1.day.ago, created_at: 1.day.ago, clock_out_at: 1.day.ago, status: "completed")
+      create(:sleep_record, user: user, clock_in_at: 2.days.ago, created_at: 2.days.ago, clock_out_at: 2.days.ago, status: "completed")
+      create(:sleep_record, user: user, clock_in_at: 3.days.ago, created_at: 3.days.ago, clock_out_at: 3.days.ago, status: "completed")
+      create(:sleep_record, user: user, clock_in_at: 4.days.ago, created_at: 4.days.ago, clock_out_at: 4.days.ago, status: "completed")
+      create(:sleep_record, user: user, clock_in_at: Time.current, created_at: Time.current, clock_out_at: nil, duration: 0, status: "active")
+    end
+
+    it "returns the user's sleep records" do
+      get "/api/v1/users/#{user.id}/sleep_records"
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body).to have_key("sleep_records")
+      expect(body["sleep_records"].length).to eq(5)
+      expect(body).to have_key("meta")
+      expect(body["meta"]).to include("current_page", "total_pages")
+    end
+
+    it "supports pagination" do
+      get "/api/v1/users/#{user.id}/sleep_records", params: { page: 1, per_page: 2 }
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["sleep_records"].length).to eq(2)
+      expect(body["meta"]["current_page"]).to eq(1)
+    end
+  end
 end

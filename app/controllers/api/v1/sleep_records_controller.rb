@@ -26,6 +26,13 @@ module Api
         end
       end
 
+      # GET /api/v1/users/:user_id/sleep_records
+      def index
+        sleep_records = @user.sleep_records.ordered_by_created_at.page(params[:page]).per(params[:per_page])
+
+        render json: sleep_records, meta: pagination_meta(sleep_records), each_serializer: SleepRecordSerializer
+      end
+
       private
 
       def set_user
