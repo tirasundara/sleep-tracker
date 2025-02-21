@@ -36,7 +36,7 @@ gem "kaminari", "~> 1.2"
 gem "active_model_serializers", "~> 0.10.0"
 
 # Sidekiq
-gem "sidekiq", "~> 6.5"
+gem "sidekiq", "~> 7.3"
 gem "rack-session" # for Sidekiq Web UI
 
 group :development, :test do
