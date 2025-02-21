@@ -35,6 +35,10 @@ gem "kaminari", "~> 1.2"
 # ActiveModelSerializers
 gem "active_model_serializers", "~> 0.10.0"
 
+# Sidekiq
+gem "sidekiq", "~> 6.5"
+gem "rack-session" # for Sidekiq Web UI
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -52,6 +56,7 @@ group :development, :test do
   gem "database_cleaner-active_record", "~> 2.1"
   gem "shoulda-matchers", "~> 6.0"
   gem "timecop", "~> 0.9"
+  gem "rspec-sidekiq", "~> 5.0"
 
   # dotenv
   gem "dotenv-rails"
