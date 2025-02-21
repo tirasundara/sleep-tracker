@@ -16,6 +16,8 @@ Rails.application.routes.draw do
         end
 
         get :following_sleep_records, to: "sleep_records#following_sleep_records" # get following users' sleep records
+
+        post :follow, to: "followings#follow"         # follow a user
       end
     end
   end
