@@ -50,7 +50,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   # Testing suite
-  gem "rspec-rails", "~> 6.0"
+  gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.2"
   gem "faker", "~> 3.2"
   gem "database_cleaner-active_record", "~> 2.1"
