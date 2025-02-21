@@ -14,6 +14,8 @@ Rails.application.routes.draw do
             patch :clock_out # clock out a sleep record
           end
         end
+
+        get :following_sleep_records, to: "sleep_records#following_sleep_records" # get following users' sleep records
       end
     end
   end

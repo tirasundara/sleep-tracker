@@ -83,4 +83,50 @@ RSpec.describe "Api::V1::SleepRecords", type: :request do
       expect(body["meta"]["current_page"]).to eq(1)
     end
   end
+
+  describe "GET /api/v1/users/:user_id/following_sleep_records" do
+    let(:followed_user1) { create(:user) }
+    let(:followed_user2) { create(:user) }
+
+    before do
+      # follow the followed users
+      create(:following, follower: user, followed: followed_user1)
+      create(:following, follower: user, followed: followed_user2)
+
+      # Create sleep records for the followed users from the previous week
+      create(:sleep_record, :completed, user: followed_user1, clock_in_at: 5.days.ago, clock_out_at: 5.days.ago + 8.hours, created_at: 5.days.ago)
+      create(:sleep_record, :completed, user: followed_user2, clock_in_at: 3.days.ago, clock_out_at: 3.days.ago + 7.hours, created_at: 3.days.ago)
+
+      # Create an old sleep records (not from previous week)
+      create(:sleep_record, :completed, user: followed_user1, clock_in_at: 2.weeks.ago, created_at: 2.weeks.ago)
+      create(:sleep_record, :completed, user: followed_user2, clock_in_at: 3.weeks.ago, created_at: 3.weeks.ago)
+    end
+
+    it "returns sleep records from followed users from the previous week" do
+      get "/api/v1/users/#{user.id}/following_sleep_records"
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body).to have_key("sleep_records")
+      expect(body["sleep_records"].length).to eq(2)
+
+      # Should be ordered by duration (longest first)
+      expect(body["sleep_records"][0]["duration"]).to eq(28800)
+      expect(body["sleep_records"][1]["duration"]).to eq(25200)
+
+      # Each record should include the user
+      expect(body["sleep_records"][0]).to have_key("user")
+      expect(body["sleep_records"][0]["user"]).to have_key("name")
+    end
+
+    it "supports pagination" do
+      get "/api/v1/users/#{user.id}/following_sleep_records", params: { page: 1, per_page: 1 }
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["sleep_records"].length).to eq(1)
+      expect(body["meta"]["current_page"]).to eq(1)
+      expect(body["meta"]["total_pages"]).to eq(2)
+    end
+  end
 end

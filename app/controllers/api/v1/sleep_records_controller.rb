@@ -33,6 +33,13 @@ module Api
         render json: sleep_records, meta: pagination_meta(sleep_records), each_serializer: SleepRecordSerializer
       end
 
+      # GET /api/v1/users/:user_id/following_sleep_records
+      def following_sleep_records
+        sleep_records = SleepRecordService.following_sleep_records_from_previous_week(@user).page(params[:page]).per(params[:per_page])
+
+        render json: sleep_records, meta: pagination_meta(sleep_records), each_serializer: SleepRecordWithUserSerializer
+      end
+
       private
 
       def set_user
