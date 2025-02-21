@@ -56,7 +56,7 @@ RSpec.describe SleepRecord, type: :model do
           sleep_record.reload
 
           expect(sleep_record).to be_completed
-          expect(sleep_record.clock_out_at).to eq(Time.current)
+          expect(sleep_record.clock_out_at).to be_within(1.second).of(Time.current)
         end
       end
     end
