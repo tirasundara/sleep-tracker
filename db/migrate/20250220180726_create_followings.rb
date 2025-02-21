@@ -8,6 +8,6 @@ class CreateFollowings < ActiveRecord::Migration[7.2]
     end
 
     # Adds a unique index to prevent duplicate follower-followed relationships at the database level
-    add_index :followings, [:follower_id, :followed_id], unique: true
+    add_index :followings, [ :follower_id, :followed_id ], unique: true
   end
 end

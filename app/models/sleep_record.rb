@@ -12,7 +12,7 @@ class SleepRecord < ApplicationRecord
   scope :ordered_by_created_at, -> { order(created_at: :desc) }
   scope :ordered_by_duration, -> { order(duration: :desc) }
   scope :completed, -> { where.not(status: :active) }
-  scope :last_week, -> {
+  scope :from_previous_week, -> {
     where(created_at: 1.week.ago.in_time_zone.beginning_of_day..Time.current)
   }
 
