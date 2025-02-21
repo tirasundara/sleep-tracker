@@ -32,6 +32,18 @@ RSpec.describe SleepRecord, type: :model do
     end
   end
 
+  describe 'callbacks' do
+    describe '#schedule_auto_completion' do
+      let(:user) { create(:user) }
+
+      it 'schedules auto-completion job after create' do
+        sleep_record = create(:sleep_record, user: user)
+
+        expect(AutoCompleteSleepRecordsWorker).to have_enqueued_sidekiq_job.with(sleep_record.id).in(12.hours)
+      end
+    end
+  end
+
   describe '#clock_out!' do
     let(:user) { create(:user) }
 
@@ -66,6 +78,53 @@ RSpec.describe SleepRecord, type: :model do
       record.update(clock_out_at: record.clock_in_at + 5.hours)
 
       expect(record.duration).to eq(18000) # 5 hours in seconds
+    end
+  end
+
+  describe '#auto_complete!' do
+    let(:user) { create(:user) }
+    let(:sleep_record) { create(:sleep_record, user: user, clock_in_at: 1.day.ago, clock_out_at: nil, status: :active) }
+
+    context 'when the sleep record is active' do
+      it 'completes the sleep record' do
+        sleep_record.auto_complete!
+
+        expect(sleep_record.status).to eq('auto_completed')
+        expect(sleep_record.clock_out_at).to be_present
+      end
+    end
+
+    context 'when the sleep record is not active' do
+      before do
+        sleep_record.clock_out!
+      end
+
+      it 'does not change the status' do
+        expect { sleep_record.auto_complete! }.not_to change(sleep_record, :status)
+      end
+    end
+
+    context 'when the sleep record clock_in_at is more than 12 hours ago' do
+      before do
+        sleep_record.update(clock_in_at: 13.hours.ago, clock_out_at: nil)
+      end
+
+      it 'does complete the sleep record' do
+        sleep_record.auto_complete!
+
+        expect(sleep_record.status).to eq('auto_completed')
+        expect(sleep_record.clock_out_at).to be_present
+      end
+    end
+
+    context 'when the sleep record clock_in_at is less than 12 hours ago' do
+      before do
+        sleep_record.update(clock_in_at: 11.hours.ago, clock_out_at: nil)
+      end
+
+      it 'does not complete the sleep record' do
+        expect { sleep_record.auto_complete! }.not_to change(sleep_record, :status)
+      end
     end
   end
 end
