@@ -55,4 +55,31 @@ RSpec.describe "Api::V1::Followings", type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  describe "GET /api/v1/users/:user_id/following" do
+    before do
+      create_list(:user, 3).each do |u|
+        user.follow(u)
+      end
+    end
+
+    it "returns the users being followed" do
+      get "/api/v1/users/#{user.id}/following"
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body).to have_key("users")
+      expect(body["users"].length).to eq(3)
+    end
+
+    it "supports pagination" do
+      get "/api/v1/users/#{user.id}/following", params: { page: 1, per_page: 2 }
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["users"].length).to eq(2)
+      expect(body["meta"]["current_page"]).to eq(1)
+      expect(body["meta"]["total_pages"]).to eq(2)
+    end
+  end
 end

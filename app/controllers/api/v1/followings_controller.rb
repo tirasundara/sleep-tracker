@@ -27,6 +27,13 @@ module Api
         end
       end
 
+      # GET /api/v1/users/:user_id/following
+      def following
+        following = @user.following.page(params[:page]).per(params[:per_page])
+
+        render json: following, meta: pagination_meta(following), each_serializer: UserSerializer
+      end
+
 
       private
 
