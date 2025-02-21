@@ -6,6 +6,7 @@ RSpec.describe SleepRecord, type: :model do
   it { should belong_to(:user) }
 
   it { should validate_presence_of(:clock_in_at) }
+  it { should define_enum_for(:status).with_values(active: 0, completed: 1, auto_completed: 2) }
 
   describe 'validations' do
     let(:user) { create(:user) }
