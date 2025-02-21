@@ -36,3 +36,50 @@ jobs:
 
       - name: Lint code for consistent style
         run: bin/rubocop -f github
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: sleep_tracker_test
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+
+    env:
+      RAILS_ENV: test
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: sleep_tracker_test
+      REDIS_URL: "redis://localhost:6379/0"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Set up database
+        run: |
+          bin/rails db:create db:schema:load --trace
+
+      - name: Run RSpec tests
+        run: bin/rspec spec/
